@@ -1,6 +1,7 @@
 const request = require('request');
 const cheerio = require('cheerio');
 const async = require('async');
+const optgen = require('./optgen.js');
 
 let max_page = 3;       // 最大页数
 let zf_link_list = [];      // 待解析房屋链接
@@ -8,7 +9,8 @@ let zf_link_list = [];      // 待解析房屋链接
 // 解析租房页面
 function parse_zufang(url, callback) {
     console.log('Parse: ' + url);
-    request(url, (err, resp, body) => {
+    let opt = optgen.genOpt(url, "GET");
+    request(opt, (err, resp, body) => {
         if (err) {
             console.error(err);
 
@@ -35,7 +37,8 @@ function parse_zufang(url, callback) {
 function parse_zufang_list(page = 1) {
     let url = 'https://sz.lianjia.com/zufang/pg' + page;
     console.log("Parse: " + url);
-    request(url, (err, resp, body) => {
+    let opt = optgen.genOpt(url, "GET");
+    request(opt, (err, resp, body) => {
         if (err) {
             console.error(err)
         } else if (resp.statusCode === 200) {
@@ -48,7 +51,7 @@ function parse_zufang_list(page = 1) {
                     zf_link_list.push(url);     // 存入待解析数组
                 });
                 if (page <= max_page) {
-                    parse_zufang_list(page);
+                    parse_zufang_list(++page);
                 } else {
                     parse_zf_link_list();
                 }
